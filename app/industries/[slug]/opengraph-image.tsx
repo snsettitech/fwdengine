@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { renderOgImage, OG_SIZE } from "@/lib/og";
 import { industries, getIndustry } from "@/content/industries";
 
+export const dynamic = "force-static";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 

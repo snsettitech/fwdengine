@@ -3,6 +3,9 @@ import { site } from "@/lib/site";
 import { industries } from "@/content/industries";
 import { getInsights } from "@/lib/insights";
 
+// Derived from committed content, so it pre-renders at build time.
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 

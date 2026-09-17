@@ -1,6 +1,7 @@
 import { renderOgImage, OG_SIZE } from "@/lib/og";
 import { site } from "@/lib/site";
 
+export const dynamic = "force-static";
 export const size = OG_SIZE;
 export const contentType = "image/png";
 export const alt = "Seven hubs, one engineering organisation, and a handoff that is written down.";
