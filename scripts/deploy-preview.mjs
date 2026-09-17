@@ -21,7 +21,21 @@ import path from "node:path";
 const REPO = process.env.GH_REPO ?? "snsettitech/fwdengine";
 const BASE_PATH = process.env.BASE_PATH ?? "/fwdengine";
 const BRANCH = process.env.PAGES_BRANCH ?? "gh-pages";
-const OUT = path.join(process.cwd(), "out");
+/**
+ * With a custom `distDir`, Next 16 writes the static export into that
+ * directory rather than `out/`. The preview build sets
+ * `distDir: ".next-preview"` so it does not clobber `.next`, so look there
+ * first and fall back to the default.
+ */
+const PREVIEW_DIST = path.join(process.cwd(), ".next-preview");
+const DEFAULT_OUT = path.join(process.cwd(), "out");
+
+const resolveOutDir = () => {
+  for (const dir of [PREVIEW_DIST, DEFAULT_OUT]) {
+    if (fs.existsSync(path.join(dir, "index.html"))) return dir;
+  }
+  return null;
+};
 
 /**
  * `npm` is a .cmd shim on Windows and needs a shell; `git` is a real
@@ -71,7 +85,8 @@ function aliasRscPayloads(dir) {
 }
 
 console.log(`> building static preview for ${REPO} at ${BASE_PATH}`);
-fs.rmSync(OUT, { recursive: true, force: true });
+fs.rmSync(PREVIEW_DIST, { recursive: true, force: true });
+fs.rmSync(DEFAULT_OUT, { recursive: true, force: true });
 
 runShell("npm", ["run", "build"], {
   env: {
@@ -83,7 +98,13 @@ runShell("npm", ["run", "build"], {
   },
 });
 
-if (!fs.existsSync(OUT)) throw new Error("build produced no out/ directory");
+const OUT = resolveOutDir();
+if (!OUT) {
+  throw new Error(
+    "build produced no static export (looked for index.html in .next-preview/ and out/)",
+  );
+}
+console.log(`> export directory: ${path.relative(process.cwd(), OUT)}`);
 
 const aliased = aliasRscPayloads(OUT);
 console.log(`> aliased ${aliased} RSC payload files for static hosting`);
