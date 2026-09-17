@@ -1,0 +1,51 @@
+---
+title: "Write the evaluation harness before you touch the prompt"
+summary: "A public benchmark tells you how a model performs on someone else's distribution. Here is how we build a harness from an institution's own adjudicated history, and why it becomes the release gate."
+date: "2026-07-30"
+author: "FwdEngine Engineering"
+category: "Evaluation"
+readingMinutes: 7
+---
+
+The fastest way to waste six weeks on an agentic system is to start by tuning prompts. You will make the demo better and you will have no idea whether you have made the system better, because you have no measurement that the institution recognises.
+
+So we write the harness first. Before the prompt, before the retrieval design, usually in the same week as access provisioning.
+
+## The harness is built from adjudicated history
+
+Every process worth automating has a paper trail of decisions that were already made, reviewed, and in some cases overturned. That trail is the evaluation set. It is better than any public benchmark for one specific reason: it encodes this institution's interpretation of its own policy, including the parts the policy document gets wrong.
+
+The work is in the curation, not the code.
+
+- **Find the adjudicated cases.** Not all closed cases. The ones where a second person reviewed the first person's call, because those have a defensible label.
+- **Separate the overturns.** A case that was decided one way and then reversed is the most informative row in the set. It marks a boundary where reasonable people disagreed.
+- **Date-partition the split.** Random splits leak. If the same counterparty, the same broker or the same document template appears on both sides of the split, your held-out set is measuring memorisation. Split on time and accept the smaller effective sample.
+- **Keep the ambiguous cases in.** The temptation is to drop rows where the label is contested. Those rows are where a production system will hurt you, and a harness that excludes them reports a number that is not about production.
+
+A typical first harness for a credit or claims process lands somewhere between four hundred and three thousand rows. Smaller than people expect. Sufficient, because we are not training on it.
+
+## What the harness measures
+
+Accuracy against the label is the least interesting output. Three others matter more.
+
+**Citation fidelity.** For every assertion the system makes, does the cited span actually support it? This is checkable mechanically for a large fraction of cases, and it is the metric that predicts whether an officer will trust the output after two weeks. A system that is right but cites the wrong paragraph gets abandoned.
+
+**Abstention quality.** When the system declines to answer, was declining correct? A system that never abstains is miscalibrated and a system that abstains constantly is useless. The shape of the abstention curve against case difficulty tells you more about deployability than the headline accuracy does.
+
+**Prohibited-inference resistance.** We maintain a per-engagement adversarial corpus that probes for reasoning the institution has excluded: age or date-of-birth inference, postcode used as a proxy, employment-gap penalties, protected-attribute leakage through a correlated feature. These are not checked by asking the model to avoid them. They are checked by measuring whether behaviour changes when the attribute is perturbed and everything else is held constant.
+
+That last one catches real problems. In one engagement, a submission-intake system was inferring an applicant's approximate age from a graduation year in an attached CV and letting it influence a completeness score. Nothing in the prompt asked for it. The perturbation test found it in an afternoon.
+
+## Then the harness becomes the gate
+
+Once the harness exists, it stops being a measurement and becomes a control. A regression blocks the deploy.
+
+This has to hold when it is inconvenient, which is the whole point. A frontier model upgrade that improves the headline metric and degrades citation fidelity does not ship. A prompt change that lifts accuracy on the easy cases and loses two points on the overturn subset does not ship. If the gate can be waived by whoever is under delivery pressure that week, it is documentation, not a gate.
+
+The practical consequence is that model upgrades become boring. When a new frontier model lands, we run the harness, read the diff, and either promote it or do not. No rebuild, no re-litigating the architecture, no six-week revalidation project. That is most of the value of being model agnostic in the first place — it is not the ability to swap providers, it is the ability to swap providers *and know what happened*.
+
+## The uncomfortable part
+
+Building the harness first means the first three or four weeks of an engagement produce no demo. There is a running evaluation suite, a curated case set, and a number that is probably not very good yet.
+
+Clients who have been sold AI before find this alarming, because they are used to week two producing something impressive. We would rather have the argument early. A demo built before measurement exists is a claim nobody can check, and the institutions we work with have a drawer full of those already.

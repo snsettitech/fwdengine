@@ -1,0 +1,53 @@
+---
+title: "The human gate is the product, not the compromise"
+summary: "Institutions keep asking us to remove the approval step to prove the system is 'really autonomous'. That step is the reason the system is deployable, and the leverage is upstream of it anyway."
+date: "2026-08-26"
+author: "FwdEngine Engineering"
+category: "Architecture"
+readingMinutes: 6
+---
+
+Every few weeks a prospective client asks a version of the same question. If the agent still needs a human to approve the outcome, what exactly have we automated?
+
+It is a fair question and it is based on a wrong model of where the cost sits.
+
+## Where the time actually goes
+
+Take a commercial credit decision. Ask a credit officer how long the decision takes and you will hear something like two hours. Watch the two hours and the decision itself occupies about eight minutes. The rest is assembly: finding the last three years of financials, reconciling two versions of the same balance sheet, checking whether the covenant language in the existing facility says what everyone remembers it saying, pulling the bureau file, and writing the memo that records all of it.
+
+The eight minutes is judgement. The hundred and twelve minutes is retrieval, reconciliation and drafting.
+
+An agentic system that removes the hundred and twelve minutes and leaves the eight is not a diminished version of automation. It is almost all of the available value, and it is the version that a model risk function will actually approve.
+
+## What removing the gate would cost
+
+Suppose we did remove it. Three things happen immediately.
+
+The first is regulatory. In most of the jurisdictions our clients operate in, a consequential decision affecting a customer requires an accountable person. Not an accountable system, not a documented process: a person. The moment the path from input to outcome contains no named actor, the institution has created an exposure that no amount of model accuracy resolves.
+
+The second is operational. A system that decides is a system that must be right on the tail. A system that recommends can be wrong on the tail, as long as it is legibly wrong — as long as the officer can see what it read, what it was unsure about, and why it landed where it did. That difference is worth an enormous amount of engineering budget, because building for the second is tractable and building for the first is not.
+
+The third is commercial, and it is the one people miss. Removing the gate collapses the institution's willingness to give the system real volume. Gated systems get promoted. Ungated ones stay in a sandbox while the risk committee asks for another round of evidence.
+
+## The gate has to be real, though
+
+A gate that everyone clicks through is worse than no gate, because it produces the appearance of oversight with none of the substance. We have seen this pattern in alert triage: a queue where the analyst's job has quietly become pressing approve four hundred times a shift.
+
+So the gate has to be engineered, not just present.
+
+- The approver sees what the system read, not a summary of what it concluded.
+- The system states what it was uncertain about, and that statement is derived from the run, not generated as a courtesy.
+- Amend is a first-class outcome alongside approve and reject, and amendments feed the evaluation set.
+- Approval rates are monitored. A gate running at 99.4% approval is a gate that has stopped working, and that is a finding, not a success metric.
+
+That last one is uncomfortable to build because it produces bad news about your own system. It is also the only way to know the oversight is load-bearing.
+
+## What this means for the architecture
+
+If the gate is the product, then the architecture is organised around producing the evidence a human needs to act, and around making the wait cheap.
+
+Concretely, that means every retrieved span is pinned to the assertion it supports, so the memo can be read backwards. It means the run halts at the gate rather than proceeding optimistically and rolling back. It means a gate that has been open too long is an alert, and it means the identity of the approver is in the audit record for every minute of the run.
+
+None of that is exotic. It is just the consequence of deciding early that the human is part of the system rather than a checkpoint bolted on afterwards.
+
+The institutions that move fastest on this are the ones that stopped asking us to prove the model could act alone, and started asking how much evidence assembly we could take off their officers' desks. That question has a very large answer.
