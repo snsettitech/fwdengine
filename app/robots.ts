@@ -1,10 +1,15 @@
 import type { MetadataRoute } from "next";
-import { site } from "@/lib/site";
+import { site, isPreviewDeployment } from "@/lib/site";
 
 // Derived from committed content, so it pre-renders at build time.
 export const dynamic = "force-static";
 
 export default function robots(): MetadataRoute.Robots {
+  // A preview deployment is closed to crawlers outright.
+  if (isPreviewDeployment) {
+    return { rules: [{ userAgent: "*", disallow: "/" }] };
+  }
+
   return {
     rules: [
       {

@@ -1,18 +1,24 @@
 import type { NextConfig } from "next";
 
 /**
- * `STATIC_PREVIEW=1 npm run build` produces a fully static `out/` directory
- * that can be dropped on any static host for a shareable preview.
+ * Two build targets.
  *
- * The production target is a Node/Vercel deployment, because `/api/contact`
- * is a real route handler. In preview mode that route cannot exist, so the
- * qualification form has nowhere to post and falls back to its error state
- * with the direct email address. Everything else — all 34 pages, the globe,
- * the OpenGraph images — exports as static files.
+ * Default: a Node/Vercel deployment. `/api/contact` is a real route handler,
+ * so this is the only target where the qualification form works.
+ *
+ * `STATIC_PREVIEW=1 npm run build`: a fully static `out/` for any static host.
+ * The form has nowhere to post and falls back to its error state with the
+ * direct email address; everything else exports as static files.
+ *
+ * Set `BASE_PATH` when the host serves the site from a sub-directory rather
+ * than a domain root, e.g. `/fwdengine` on GitHub Pages. Without it every
+ * asset and link is requested from the origin root and nothing resolves.
  */
 const isStaticPreview = process.env.STATIC_PREVIEW === "1";
+const basePath = process.env.BASE_PATH ?? "";
 
 const nextConfig: NextConfig = {
+  ...(basePath ? { basePath, assetPrefix: basePath } : {}),
   ...(isStaticPreview
     ? {
         output: "export",

@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme/theme-provider";
 import { SiteHeader } from "@/components/nav/site-header";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { CursorGlow } from "@/components/visual/cursor-glow";
-import { site } from "@/lib/site";
+import { site, isPreviewDeployment } from "@/lib/site";
 
 /**
  * General Sans is self-hosted rather than pulled from Fontshare's CDN: the
@@ -65,11 +65,14 @@ export const metadata: Metadata = {
     title: `${site.name} — ${site.tagline}`,
     description: site.description,
   },
-  robots: {
-    index: true,
-    follow: true,
-    googleBot: { index: true, follow: true, "max-image-preview": "large" },
-  },
+  // A preview host is excluded from search entirely. See isPreviewDeployment.
+  robots: isPreviewDeployment
+    ? { index: false, follow: false, nocache: true }
+    : {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-image-preview": "large" },
+      },
   alternates: { canonical: "/" },
 };
 

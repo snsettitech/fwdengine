@@ -3,6 +3,15 @@
  * Nothing else should hardcode a route string or a tagline.
  */
 
+/**
+ * True for a preview deployment (a github.io copy, a staging host).
+ *
+ * A preview of an unlaunched brand must never be indexed: it would compete
+ * with fwdengine.com for the company's own name and is very hard to get back
+ * out of the index once it is in.
+ */
+export const isPreviewDeployment = process.env.NEXT_PUBLIC_PREVIEW === "1";
+
 export const site = {
   name: "FwdEngine",
   domain: "fwdengine.com",
