@@ -11,7 +11,8 @@
     "audit": "node scripts/audit-pages.mjs",
     "lighthouse": "node scripts/lighthouse.mjs",
     "lcp": "node scripts/lcp-probe.mjs",
-    "verify": "npm run typecheck && npm run lint && npm run audit"
+    "verify": "npm run typecheck && npm run lint && npm run audit",
+    "deploy:preview": "node scripts/deploy-preview.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

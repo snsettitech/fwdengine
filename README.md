@@ -204,6 +204,36 @@ dropping to a system font stack.
 
 ## Deployment
 
+### Live preview
+
+**https://snsettitech.github.io/fwdengine/**
+
+A static export on GitHub Pages, redeployed with:
+
+```bash
+npm run deploy:preview
+```
+
+Two things are true of the preview and not of production:
+
+- **The qualification form does not work.** A static export has no route
+  handler, so submitting shows the error state with the direct email address.
+- **It is closed to search engines.** `NEXT_PUBLIC_PREVIEW=1` sets
+  noindex/nofollow and makes robots.txt disallow everything. A github.io copy
+  of an unlaunched brand would otherwise compete with fwdengine.com for the
+  company's own name, and getting a page *out* of an index is much harder than
+  keeping it out.
+
+The deploy script also aliases the App Router's RSC payload files. Next
+requests them with the segment separator flattened to a dot
+(`/platform/__next.platform.__PAGE__.txt`) but exports them as a nested
+directory; a real Next server resolves both, a static host serves only what is
+on disk. Without the alias every prefetch 404s and each navigation degrades to
+a full page load.
+
+### Production
+
+
 Built for Vercel. Set the environment variables from
 [`.env.example`](.env.example) — the contact form is inert without a delivery
 channel, by design. `next start` behind any Node host works equally well; 34
