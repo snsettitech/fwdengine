@@ -44,3 +44,6 @@ next-env.d.ts
 # audit + performance artefacts
 /.lighthouse
 /.playwright-mcp
+
+# preview build output
+/.next-preview

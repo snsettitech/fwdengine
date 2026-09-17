@@ -15,25 +15,31 @@ npm run dev          # http://localhost:3000
 
 ## Before this goes live
 
-**Every figure a prospect sees is a placeholder.** They live in one file:
-[`content/metrics.ts`](content/metrics.ts).
+**The figures on the site are illustrative.** Every one of them lives in a
+single file: [`content/metrics.ts`](content/metrics.ts).
 
-FwdEngine sells to regulated financial institutions. Procurement and model-risk
-teams diligence performance claims, and the FTC has an active enforcement line
-on unverifiable AI performance marketing. So the codebase makes an unfilled
-number impossible to ship by accident:
+They are shaped like real operating numbers so the design reads as finished,
+and `delivery hubs` and `time zones` are derived from `content/hubs.ts` so the
+homepage cannot contradict the Global Delivery page. But none of them is
+evidenced.
 
-- A metric renders as fact only when `verified: true`.
-- Anything still set to `PLACEHOLDER` renders the literal `__REPLACE__` token
-  in amber, and the Proof section shows a build-state banner.
-- `basis` is not optional. If you cannot write down what the number is measured
-  against, it is not ready for the page.
-- The hero status strip carries a permanent **SIMULATED** marker while
-  `statusStrip.isLive` is false. If you wire it to a real feed, flip the flag
-  and remove the marker in the same change, not before.
+That is fine for a preview, a design review or a deck screenshot. It is not
+fine on fwdengine.com in front of a bank's procurement team. Uptime and
+control-pass-rate claims are exactly what FTC Operation AI Comply targets, and
+a CTO who asks "measured against what, over what period?" deserves an answer.
 
-To go live: replace the values, write a real `basis`, flip `verified`. Nothing
-else in the codebase needs to change.
+So each metric carries a `verified` flag. It changes nothing about how the
+page renders — it drives one build-time check:
+
+- Any production build that is not a preview prints a loud warning naming
+  every unverified figure.
+- `STRICT_METRICS=1 npm run build` turns that warning into a hard failure.
+  **Set it in whatever deploys the real domain** and shipping an unevidenced
+  number becomes impossible rather than merely discouraged.
+
+To go live for real: replace the values with evidenced ones, keep `basis`
+accurate, flip `verified` to true. Nothing else in the codebase needs to
+change.
 
 The live hub clock in the footer and on Global Delivery is **real** — it is
 computed from the visitor's own clock via `Intl`, including daylight saving —

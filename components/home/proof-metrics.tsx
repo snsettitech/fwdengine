@@ -4,9 +4,15 @@ import { CountUp } from "@/components/motion/count-up";
 import { proofMetrics, isPlaceholder } from "@/content/metrics";
 import { cn } from "@/lib/cn";
 
+/**
+ * The proof block, rendered as a terminal readout.
+ *
+ * Each figure is shown with the definition it is measured against, because a
+ * number without a stated basis is the thing a diligence team throws out
+ * first. A metric left as a placeholder renders as a reserved slot rather
+ * than a broken value.
+ */
 export function ProofMetricsSection() {
-  const unverified = proofMetrics.filter(isPlaceholder).length;
-
   return (
     <Section
       id="proof"
@@ -15,8 +21,9 @@ export function ProofMetricsSection() {
       headline="Four numbers, and what each one is measured against."
       lede={
         <p>
-          A figure without a stated basis is not evidence, it is decoration. Each
-          of these carries the definition a diligence team would ask for anyway.
+          A figure without a stated basis is not evidence, it is decoration.
+          Each of these carries the definition a diligence team would ask for
+          anyway.
         </p>
       }
     >
@@ -25,33 +32,19 @@ export function ProofMetricsSection() {
           <span className="type-mono text-[0.6875rem] text-[var(--ink-dim)]">
             fwdengine://metrics
           </span>
-          <span className="type-mono flex items-center gap-2 text-[0.625rem] uppercase tracking-[0.16em]">
+          <span className="type-mono flex items-center gap-2 text-[0.625rem] uppercase tracking-[0.16em] text-[var(--ink-dim)]">
             <span
               aria-hidden="true"
-              className={cn(
-                "inline-block h-1.5 w-1.5",
-                unverified > 0 ? "bg-[var(--amber)]" : "bg-[var(--accent-text)]",
-              )}
+              className="inline-block h-1.5 w-1.5 bg-[var(--accent-text)] animate-pulse-node"
             />
-            <span className={unverified > 0 ? "text-[var(--amber)]" : "text-[var(--accent-text)]"}>
-              {unverified > 0 ? `${unverified} unverified` : "verified"}
-            </span>
+            {proofMetrics.length} tracked
           </span>
         </div>
-
-        {unverified > 0 ? (
-          <p className="border-b border-[var(--line)] bg-[var(--amber)]/[0.06] px-5 py-3 text-[0.8125rem] leading-relaxed text-[var(--amber)]">
-            Build state: these figures are not yet published. Replace the values
-            in <code className="type-mono">content/metrics.ts</code> and set{" "}
-            <code className="type-mono">verified: true</code> once each one is
-            evidenced. Nothing here should reach a prospect unfilled.
-          </p>
-        ) : null}
 
         <Reveal stagger={0.1}>
           <dl className="grid divide-y divide-[var(--line)] sm:grid-cols-2 sm:divide-y-0 lg:grid-cols-4">
             {proofMetrics.map((metric, index) => {
-              const unfilled = isPlaceholder(metric);
+              const pending = isPlaceholder(metric);
               return (
                 <RevealItem
                   key={metric.id}
@@ -67,19 +60,25 @@ export function ProofMetricsSection() {
                     {metric.label}
                   </dt>
                   <dd className="mt-4">
-                    <span
-                      className={cn(
-                        "type-mono block text-[clamp(1.75rem,1.3rem+1.4vw,2.75rem)] font-medium leading-none",
-                        unfilled ? "text-[var(--amber)]" : "text-[var(--ink)]",
-                      )}
-                    >
-                      {unfilled ? metric.value : <CountUp value={metric.value} />}
-                      {metric.unit && !unfilled ? (
-                        <span className="ml-1.5 text-[0.4em] tracking-[0.1em] text-[var(--ink-dim)]">
-                          {metric.unit}
-                        </span>
-                      ) : null}
-                    </span>
+                    {pending ? (
+                      // A reserved slot, not a broken value.
+                      <span className="flex h-[clamp(1.75rem,1.3rem+1.4vw,2.75rem)] items-center">
+                        <span
+                          aria-hidden="true"
+                          className="h-px w-14 bg-[var(--line-strong)]"
+                        />
+                        <span className="sr-only">Not yet published</span>
+                      </span>
+                    ) : (
+                      <span className="type-mono block text-[clamp(1.75rem,1.3rem+1.4vw,2.75rem)] font-medium leading-none text-[var(--ink)]">
+                        <CountUp value={metric.value} />
+                        {metric.unit ? (
+                          <span className="ml-1.5 text-[0.4em] tracking-[0.1em] text-[var(--ink-dim)]">
+                            {metric.unit}
+                          </span>
+                        ) : null}
+                      </span>
+                    )}
                     <p
                       data-footnote=""
                       className="mt-4 text-[0.8125rem] leading-relaxed text-[var(--ink-dim)]"

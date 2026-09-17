@@ -26,6 +26,10 @@ const nextConfig: NextConfig = {
         // only do directory-index resolution still serve deep links.
         trailingSlash: true,
         images: { unoptimized: true },
+        // A separate build directory so the preview does not clobber `.next`.
+        // Without this, running the preview build and then `next start` serves
+        // a basePath-prefixed export from the server root and every asset 404s.
+        distDir: ".next-preview",
       }
     : {}),
 };
